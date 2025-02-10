@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
-mongoose.connect('mongodb+srv://tomgontard:Xv4oCqoCQOIW5BSc@cluster0.zty2x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+dotenv.config();
+
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -15,5 +18,10 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+// Route test
+app.get('/', (req, res) => {
+    res.send('API Hot Takes fonctionne 🚀');
+});
 
 module.exports = app;
