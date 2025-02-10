@@ -13,4 +13,4 @@ Ce projet est une API REST sécurisée pour l'application Hot Takes.
     npm install
 
 3. Démarrez le serveur :
-    node server.js
+    nodemon server
