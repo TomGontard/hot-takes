@@ -19,6 +19,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Import des routes
+const userRoutes = require('./routes/user');
+app.use('/api/auth', userRoutes);
+
 // Route test
 app.get('/', (req, res) => {
     res.send('API Hot Takes fonctionne 🚀');
