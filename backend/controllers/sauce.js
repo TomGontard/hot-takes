@@ -59,3 +59,41 @@ exports.deleteSauce = (req, res) => {
         })
         .catch(error => res.status(500).json({ error }));
 };
+
+// Liker ou disliker une sauce
+exports.likeSauce = (req, res) => {
+    const { like, userId } = req.body;
+
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => {
+            if (!sauce) return res.status(404).json({ message: 'Sauce non trouvée' });
+
+            // Gestion des likes et dislikes
+            if (like === 1) { // Ajout d'un like
+                if (!sauce.usersLiked.includes(userId)) {
+                    sauce.usersLiked.push(userId);
+                    sauce.likes++;
+                }
+            } else if (like === -1) { // Ajout d'un dislike
+                if (!sauce.usersDisliked.includes(userId)) {
+                    sauce.usersDisliked.push(userId);
+                    sauce.dislikes++;
+                }
+            } else if (like === 0) { // Annulation d'un like/dislike
+                if (sauce.usersLiked.includes(userId)) {
+                    sauce.usersLiked = sauce.usersLiked.filter(id => id !== userId);
+                    sauce.likes--;
+                }
+                if (sauce.usersDisliked.includes(userId)) {
+                    sauce.usersDisliked = sauce.usersDisliked.filter(id => id !== userId);
+                    sauce.dislikes--;
+                }
+            }
+
+            // Sauvegarde des modifications
+            sauce.save()
+                .then(() => res.status(200).json({ message: 'Vote mis à jour !' }))
+                .catch(error => res.status(400).json({ error }));
+        })
+        .catch(error => res.status(500).json({ error }));
+};
