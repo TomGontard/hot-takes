@@ -3,18 +3,20 @@ const fs = require('fs');
 
 // Créer une sauce
 exports.createSauce = (req, res) => {
-    const sauceObject = JSON.parse(req.body.sauce); // Récupérer les données sous forme d'objet
-    delete sauceObject._id; // Supprime l'ID généré par le frontend
-
+    const sauceObject = JSON.parse(req.body.sauce);
+    delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject,
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
-
-    sauce.save()
-        .then(() => res.status(201).json({ message: 'Sauce enregistrée !' }))
-        .catch(error => res.status(400).json({ error }));
+    sauce.save().then(
+        () => res.status(201).json({
+            message: 'Sauce enregistrée !'
+        })).catch(
+            (error) => res.status(400).json({
+                error: error
+        }));
 };
 
 // Récupérer toutes les sauces
@@ -38,7 +40,7 @@ exports.modifySauce = (req, res) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
 
-    Sauce.updateOne({ _id: req.params.id, userId: req.auth.userId }, sauceObject)
+    Sauce.updateOne({ _id: req.params.id, userId: req.auth.userId }, { ...sauceObject })
         .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
         .catch(error => res.status(400).json({ error }));
 };
@@ -48,7 +50,6 @@ exports.deleteSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id, userId: req.auth.userId })
         .then(sauce => {
             if (!sauce) return res.status(404).json({ message: 'Sauce non trouvée' });
-
             const filename = sauce.imageUrl.split('/images/')[1];
             fs.unlink(`images/${filename}`, () => {
                 Sauce.deleteOne({ _id: req.params.id })
