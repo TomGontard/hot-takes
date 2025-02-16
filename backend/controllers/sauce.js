@@ -1,15 +1,19 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
 
-// Créer une sauce
+// Création d'une nouvelle sauce
 exports.createSauce = (req, res) => {
+    // Conversion de la chaîne JSON en objet JavaScript
     const sauceObject = JSON.parse(req.body.sauce);
+    // Suppression de l'ID envoyé par le front-end pour éviter les conflits
     delete sauceObject._id;
+    // Création de la sauce selon le modèle Mongoose
     const sauce = new Sauce({
         ...sauceObject,
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
+    // Enregistrement de la sauce dans la base de données
     sauce.save().then(
         () => res.status(201).json({
             message: 'Sauce enregistrée !'
@@ -19,21 +23,21 @@ exports.createSauce = (req, res) => {
         }));
 };
 
-// Récupérer toutes les sauces
+// Récupération de toutes les sauces
 exports.getAllSauces = (req, res) => {
     Sauce.find()
         .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(400).json({ error }));
 };
 
-// Récupérer une sauce par ID
+// Récupérer une sauce via son ID
 exports.getOneSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(404).json({ error }));
 };
 
-// Modifier une sauce
+// Modification d'une sauce
 exports.modifySauce = (req, res) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
@@ -45,7 +49,7 @@ exports.modifySauce = (req, res) => {
         .catch(error => res.status(400).json({ error }));
 };
 
-// Supprimer une sauce
+// Suppression d'une sauce via son ID
 exports.deleteSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id, userId: req.auth.userId })
         .then(sauce => {
@@ -60,7 +64,7 @@ exports.deleteSauce = (req, res) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-// Liker ou disliker une sauce
+// Gestion des likes et dislikes d'une sauce
 exports.likeSauce = (req, res) => {
     const { like, userId } = req.body;
 

@@ -4,6 +4,7 @@ const sauceController = require('../controllers/sauce');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 
+// Routes pour créer, modifier, récupérer, supprimer, liker et disliker des sauces
 router.post('/', auth, multer, sauceController.createSauce);
 router.get('/', auth, sauceController.getAllSauces);
 router.get('/:id', auth, sauceController.getOneSauce);
